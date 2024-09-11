@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, ImageBackground, Alert } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
-import { account } from './appwriteConfig'; // Asegúrate de importar la configuración
+import { auth } from '../firebaseConfig'; // Asegúrate de importar la configuración de Firebase
+import { signInWithEmailAndPassword } from 'firebase/auth'; // Importa la función correcta
 
 export default function Login() {
   const router = useRouter();
@@ -11,8 +12,8 @@ export default function Login() {
 
   const handleLogin = async () => {
     try {
-      // Inicia sesión del usuario
-      await account.createSession(email, password);
+      // Inicia sesión del usuario con Firebase
+      await signInWithEmailAndPassword(auth, email, password);
       console.log('Inicio de sesión exitoso');
 
       // Redirige al usuario a la pantalla principal

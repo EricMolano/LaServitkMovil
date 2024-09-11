@@ -1,8 +1,12 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, ImageBackground } from 'react-native';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, ImageBackground, Alert } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
-import { account, databases } from './appwriteConfig'; // Asegúrate de importar la configuración
+import { auth } from '../firebaseConfig'; // Asegúrate de importar la configuración de Firebase
+import { getFirestore, doc, setDoc } from 'firebase/firestore';
+import { createUserWithEmailAndPassword } from 'firebase/auth'; // Importa la función correcta
+
+const db = getFirestore();
 
 export default function Register() {
   const router = useRouter();
@@ -12,27 +16,24 @@ export default function Register() {
 
   const handleRegister = async () => {
     try {
-      // Crea un usuario y una sesión
-      const user = await account.create('unique()', email, password);
-      console.log('Usuario registrado:', user);
+      // Crea un usuario con Firebase Authentication
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
 
       // Almacena los detalles del usuario en la base de datos
-      await databases.createDocument(
-        '66cff1df0036000137e6',  // Reemplaza con tu ID de base de datos
-        '66cff285000be3f7f8ff', // Reemplaza con tu ID de colección
-        user.$id,  // Usa el ID del usuario creado por Appwrite como ID del documento
-        {
-          userId: user.$id,  // Incluye el userId
-          Username: username,
-          Email: email,
-          Password: password  // Incluye el campo Password si es requerido en la colección
-        }
-      );
+      await setDoc(doc(db, 'users', user.uid), {
+        username: username,
+        email: email,
+        password: password // No recomendado en producción
+      });
+
+      console.log('Usuario registrado:', user);
 
       // Redirige al usuario a la pantalla de inicio de sesión
       router.push('/Login');
     } catch (error) {
       console.error('Error al registrar usuario:', error);
+      Alert.alert('Error', 'No se pudo registrar el usuario.');
     }
   };
 
