@@ -1,50 +1,13 @@
-# Welcome to your Expo app 👋
+# La Servtik
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+![Logo](./assets/images/servilogo.png)
+## Descripción
 
-## Get started
+La Servtik es una aplicación móvil desarrollada en React Native con Expo, que permite a los usuarios registrarse, iniciar sesión y acceder a varias secciones de la aplicación, como Servicios, Vehículos y Perfil.
 
-1. Install dependencies
+## Funcionalidades
 
-   ```bash
-   npm install
-   ```
-
-2. Start the app
-
-   ```bash
-    npx expo start
-   ```
-
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
-
-```bash
-npm run reset-project
-```
-
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
-
-## Learn more
-
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+- **Registro de Usuario:** Los usuarios pueden registrarse con su correo electrónico, nombre de usuario y contraseña. La contraseña debe cumplir con los requisitos de seguridad, como tener al menos 6 caracteres, incluir una letra mayúscula, un número y un carácter especial.
+- **Inicio de Sesión:** Los usuarios pueden iniciar sesión con su correo electrónico y contraseña.
+- **Pantalla Principal:** Después del inicio de sesión, los usuarios son redirigidos a la pantalla principal donde pueden ver un mensaje de bienvenida y acceder a otras secciones.
+- **Navegación:** La aplicación incluye una barra de navegación con botones para navegar a diferentes secciones (Servicios, Vehículos, Perfil).
