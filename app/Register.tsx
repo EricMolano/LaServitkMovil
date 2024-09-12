@@ -1,20 +1,43 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, ImageBackground, Alert } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, ImageBackground, Alert } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import { auth } from '../firebaseConfig'; // Asegúrate de importar la configuración de Firebase
 import { getFirestore, doc, setDoc } from 'firebase/firestore';
 import { createUserWithEmailAndPassword } from 'firebase/auth'; // Importa la función correcta
+import { RegisterStyles } from '../styles/Register'; // Importa los estilos
 
 const db = getFirestore();
+
+const validatePassword = (password: string) => {
+  // La contraseña debe tener al menos 6 caracteres, una letra mayúscula, una letra minúscula, un número y un carácter especial
+  const minLength = 6;
+  const hasUpperCase = /[A-Z]/.test(password);
+  const hasLowerCase = /[a-z]/.test(password);
+  const hasNumber = /[0-9]/.test(password);
+  const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+
+  return password.length >= minLength && hasUpperCase && hasLowerCase && hasNumber && hasSpecialChar;
+};
 
 export default function Register() {
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [username, setUsername] = useState('');
 
   const handleRegister = async () => {
+    if (password !== confirmPassword) {
+      Alert.alert('Error', 'Las contraseñas no coinciden.');
+      return;
+    }
+
+    if (!validatePassword(password)) {
+      Alert.alert('Error', 'La contraseña debe tener al menos 6 caracteres, incluir una letra mayúscula, una letra minúscula, un número y un carácter especial.');
+      return;
+    }
+
     try {
       // Crea un usuario con Firebase Authentication
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
@@ -24,98 +47,81 @@ export default function Register() {
       await setDoc(doc(db, 'users', user.uid), {
         username: username,
         email: email,
-        password: password // No recomendado en producción
+        password: password // Este campo se mantiene como solicitaste
       });
 
       console.log('Usuario registrado:', user);
 
       // Redirige al usuario a la pantalla de inicio de sesión
-      router.push('/Login');
-    } catch (error) {
+      router.replace('/Login');
+    } catch (error: any) { // Usar `any` para manejar el error
       console.error('Error al registrar usuario:', error);
-      Alert.alert('Error', 'No se pudo registrar el usuario.');
+
+      // Manejo del error
+      let errorMessage = 'No se pudo registrar el usuario.';
+      
+      if (error.code === 'auth/email-already-in-use') {
+        errorMessage = 'El correo electrónico ya está en uso.';
+      } else if (error.code === 'auth/invalid-email') {
+        errorMessage = 'El correo electrónico no es válido.';
+      } else if (error.code === 'auth/weak-password') {
+        errorMessage = 'La contraseña debe tener al menos 6 caracteres.';
+      }
+
+      Alert.alert('Error', errorMessage);
     }
   };
 
   return (
     <ImageBackground
       source={require('../assets/images/servilogo.png')}
-      style={styles.backgroundImage}
+      style={RegisterStyles.backgroundImage}
       resizeMode="cover"
     >
       <LinearGradient
         colors={['rgba(176, 190, 197, 0.9)', 'rgba(255, 0, 0, 0.6)', 'rgba(0, 191, 255, 0.4)', 'rgba(255, 255, 255, 0.6)']}
-        style={styles.gradient}
+        style={RegisterStyles.gradient}
       >
-        <View style={styles.container}>
-          <Text style={styles.title}>Registro de Usuario</Text>
+        <View style={RegisterStyles.container}>
+          <Text style={RegisterStyles.title}>Registro de Usuario</Text>
           <TextInput
-            style={styles.input}
+            style={RegisterStyles.input}
             placeholder="Nombre de Usuario"
             value={username}
             onChangeText={setUsername}
           />
           <TextInput
-            style={styles.input}
+            style={RegisterStyles.input}
             placeholder="Correo electrónico"
             value={email}
             onChangeText={setEmail}
+            autoCapitalize="none"
+            keyboardType="email-address"
           />
           <TextInput
-            style={styles.input}
+            style={RegisterStyles.input}
             placeholder="Contraseña"
             secureTextEntry
             value={password}
             onChangeText={setPassword}
+            autoCapitalize="none"
           />
-          <TouchableOpacity style={styles.button} onPress={handleRegister}>
-            <Text style={styles.buttonText}>Registrar</Text>
+          <TextInput
+            style={RegisterStyles.input}
+            placeholder="Confirmar Contraseña"
+            secureTextEntry
+            value={confirmPassword}
+            onChangeText={setConfirmPassword}
+            autoCapitalize="none"
+          />
+          <TouchableOpacity style={RegisterStyles.button} onPress={handleRegister}>
+            <Text style={RegisterStyles.buttonText}>Registrar</Text>
           </TouchableOpacity>
+          <Text style={RegisterStyles.termsText}>
+            Al registrarse acepta nuestros términos y condiciones.
+          </Text>
         </View>
       </LinearGradient>
     </ImageBackground>
   );
 }
-
-const styles = StyleSheet.create({
-  backgroundImage: {
-    flex: 1,
-    justifyContent: 'center',
-  },
-  gradient: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 20,
-  },
-  container: {
-    width: '100%',
-    maxWidth: 400, // Ajuste para limitar el ancho en dispositivos grandes
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  title: {
-    fontSize: 24,
-    marginBottom: 20,
-    color: '#FF0000',
-    fontWeight: 'bold',
-  },
-  input: {
-    width: '100%',
-    padding: 15,
-    backgroundColor: '#f0f0f0',
-    borderRadius: 5,
-    marginBottom: 20,
-  },
-  button: {
-    width: '100%',
-    padding: 15,
-    backgroundColor: '#FF0000',
-    alignItems: 'center',
-    borderRadius: 5,
-  },
-  buttonText: {
-    color: '#fff',
-    fontSize: 18,
-  },
-});
